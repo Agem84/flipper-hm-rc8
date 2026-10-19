@@ -1,0 +1,75 @@
+name: Fehlermeldung / Bug report
+description: Etwas funktioniert nicht wie beschrieben
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für die Meldung. **Bitte keine Geheimnisse posten:** kein Inhalt
+        von `aes_key.txt`, keine `eeprom.bin`, keine ungekürzten Logs mit den
+        HMIDs deiner anderen Homematic-Geräte.
+
+        Fragen und Berichte auf Deutsch oder Englisch sind beide willkommen.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: Was passiert, was war erwartet?
+      placeholder: |
+        Beobachtet: ...
+        Erwartet: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen
+      placeholder: |
+        1. App starten
+        2. BACK lang drücken
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: fw
+    attributes:
+      label: Firmware auf dem Flipper
+      description: Version und API-Version, z. B. "Unleashed unlshd-086, API 87.6"
+    validations:
+      required: true
+
+  - type: input
+    id: sdk
+    attributes:
+      label: SDK, mit dem das FAP gebaut wurde
+      description: >
+        Oder "aus dem Release geladen" samt Dateiname. Das ist der häufigste
+        Grund für stilles Fehlverhalten — siehe README.
+    validations:
+      required: true
+
+  - type: input
+    id: ccu
+    attributes:
+      label: Zentrale
+      description: z. B. "RaspberryMatic 3.75 auf RPi 4" oder "CCU3"
+
+  - type: textarea
+    id: diag
+    attributes:
+      label: Diagnosezeile aus dem Log
+      description: >
+        `ufbt cli` → `log`, dann die Zeile `diag tx=… rx=… crcerr=… busy=…
+        oversz=… gdo0=…` heraussuchen. Sie ordnet fast jeden Fehlschlag ein,
+        ohne dass der Funkverkehr gelesen werden muss.
+      render: text
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Bestätigung
+      options:
+        - label: Ich habe keine Schlüssel, keine `eeprom.bin` und keine fremden HMIDs angehängt.
+          required: true

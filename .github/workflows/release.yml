@@ -1,0 +1,63 @@
+# ---------------------------------------------------------------------------
+#  Release: auf ein Tag "v*" das FAP bauen und an das GitHub-Release haengen.
+#
+#      git tag -a v0.1 -m "..." && git push origin v0.1
+#
+#  Warum ueberhaupt Binaere veroeffentlichen: nicht jeder, der eine
+#  Homematic-Zentrale hat, will eine ARM-Toolchain einrichten. Wichtig ist
+#  dabei die Angabe, gegen welches SDK gebaut wurde -- deshalb steht sie im
+#  Dateinamen (suffix) und im Text des Releases
+#  (.github/release-notes.md).
+#
+#  Lizenzhinweis: Das gebaute FAP ist ein abgeleitetes Werk von AskSin++ und
+#  steht damit ebenfalls unter CC BY-NC-SA 3.0 DE (siehe LICENSE / NOTICE.md).
+#  Der Hinweis in den Release-Notes ist Teil der Namensnennungspflicht und
+#  darf nicht entfallen.
+# ---------------------------------------------------------------------------
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Quellen holen (inkl. AskSin++-Submodul)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: AskSin++-Patches anwenden
+        run: ./scripts/setup.sh --no-submodule
+
+      - name: FAP bauen
+        id: build
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1
+        with:
+          sdk-url: https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip
+
+      - name: FAP einsammeln
+        run: |
+          mkdir -p release
+          cp ${{ steps.build.outputs.fap-artifacts }} \
+             "release/hm_rc8-${{ github.ref_name }}-${{ steps.build.outputs.suffix }}.fap"
+          ls -l release
+
+      - name: Release anlegen bzw. ergaenzen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            gh release upload "${{ github.ref_name }}" release/*.fap --clobber
+          else
+            gh release create "${{ github.ref_name }}" release/*.fap \
+              --title "${{ github.ref_name }}" \
+              --notes-file .github/release-notes.md
+          fi

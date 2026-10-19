@@ -1,0 +1,18 @@
+# Zeilenenden im Repo normalisieren, im Arbeitsbaum nativ lassen.
+* text=auto
+
+# Patches sind byteweise exakt gegen einen Upstream-Commit erzeugt. Eine
+# Zeilenenden-Umschreibung wuerde "git apply" scheitern lassen.
+*.patch -text
+*.diff -text
+
+# Shell-Skripte brauchen LF, auch wenn sie unter Windows ausgecheckt werden
+# (werden im CI-Container ausgefuehrt).
+*.sh text eol=lf
+
+*.png binary
+*.jpg binary
+*.fap binary
+*.fal binary
+*.elf binary
+*.bin binary

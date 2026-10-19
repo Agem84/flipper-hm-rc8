@@ -1,0 +1,259 @@
+# ============================================================================
+#  Homematic BidCos Remote (HM-RC-8 Emulation) — Flipper Zero FAP
+#
+#  Build:   ufbt
+#  Deploy:  ufbt launch
+#  Log:     ufbt cli   ->  log
+#
+#  Verifiziert gegen: ufbt SDK f7, Firmware 1.4.3, API 87.1
+#
+#  Hinweis zu C++:
+#    Es gibt KEIN "fap_cxx"-Flag. C++ wird allein durch .cpp-Dateien im
+#    sources-Glob aktiviert. Gebaut wird mit -fno-exceptions -fno-rtti.
+#    Der Entry-Point muss extern "C" deklariert sein.
+#    Per-App-Compilerflags existieren in App() nicht -> Fremdcode, der
+#    eigene Flags braucht, liegt in einem Lib() unter lib/<name>/.
+# ============================================================================
+
+App(
+    appid="hm_rc8",
+    name="Homematic RC-8",
+    apptype=FlipperAppType.EXTERNAL,
+
+    # extern "C" int32_t hm_rc8_app(void* p);
+    entry_point="hm_rc8_app",
+
+    # Nur der App-Thread. Der Radio-Thread bringt seinen eigenen Stack mit
+    # (furi_thread_alloc_ex). Beide Werte sind mit furi_thread_get_stack_space()
+    # im Debug-Build nachzumessen, nicht zu raten.  -> CLAUDE.md §2.3
+    # 8 KB statt der ueblichen 4: AskSin++ hat tiefe Aufrufketten
+    # (ChannelDevice::process ist allein 2,4 KB Code) und legt Message- und
+    # Peer-Objekte auf dem Stack ab. Mit furi_thread_get_stack_space()
+    # nachmessen, bevor das wieder verkleinert wird.
+    stack_size=8 * 1024,
+
+    fap_category="Sub-GHz",
+
+    # 10x10 px, 1-bit PNG. Fehlt die Datei, bricht der Build ab.
+    fap_icon="icons/hm_rc8_10px.png",
+    fap_icon_assets="icons",
+    fap_icon_assets_symbol="hm_rc8",
+
+    fap_version=(0, 1),
+    fap_description=(
+        "Emuliert eine Homematic BidCos 8-Tasten-Fernbedienung (HM-RC-8) "
+        "auf dem internen CC1101. Portierte AskSin++-Bibliothek, regulaeres "
+        "Anlernen an CCU/RaspberryMatic."
+    ),
+    fap_author="Agem",
+
+    # Anwendungscode. Die AskSin++-Portierung liegt bewusst NICHT hier,
+    # sondern als privates Lib (siehe fap_private_libs).
+    #
+    # ACHTUNG: fbt globbt REKURSIV (GlobRecursive) ab dem App-Verzeichnis.
+    # Der Default ["*.c*"] wuerde damit auch lib/asksinpp/upstream/examples/
+    # einsammeln und den Build zerlegen. Deshalb immer explizite,
+    # verzeichnisgebundene Patterns -- niemals der Default.
+    # Kein "src/device/*.cpp": Geraetelogik, die AskSin++ anfasst, gehoert
+    # nach lib/asksinpp/port/ -- unter src/ stuende sie ohne ARDUINO,
+    # ASKSIN_FLIPPER_PORT und STORAGEDRIVER da (CLAUDE.md §2.2.2).
+    sources=[
+        "src/*.cpp",
+        "src/ui/*.cpp",
+        "src/radio/*.cpp",
+    ],
+
+    # Nur fuer eigene Compile-Time-Schalter des App-Codes.
+    # Radio-/Protokollschalter gehoeren ins Lib unten.
+    cdefines=[
+        "HMRC8_APP",
+    ],
+
+    # Hinweis: App() kennt KEIN 'cincludes' (nur Lib() hat das). Zusaetzliche
+    # Include-Pfade fuer den App-Code kommen ueber fap_include_paths des
+    # privaten Libs unten; App-eigene Header werden relativ inkludiert.
+
+    # ------------------------------------------------------------------
+    #  AskSin++ + Flipper-Portierung als privates Lib.
+    #
+    #  Grund fuer die Auslagerung: nur Lib() akzeptiert cflags. Damit
+    #  koennen die Warnungen des unveraenderten Upstream-Codes gedaempft
+    #  werden, OHNE die Warnungen im eigenen Code zu verlieren.
+    #  -> CLAUDE.md §2.1 / §10.1
+    #
+    #  Layout:
+    #    lib/asksinpp/upstream/  pa-pa/AskSin++, unveraendert (Vendor-Kopie)
+    #    lib/asksinpp/patches/   nummerierte Patches gegen upstream/
+    #    lib/asksinpp/port/      Flipper-HAL: Arduino-Shims, Radio, EEPROM, Clock
+    # ------------------------------------------------------------------
+    fap_private_libs=[
+        Lib(
+            name="asksinpp",
+            # Explizite Dateiliste statt Glob.
+            #
+            # Aus upstream werden GENAU drei .cpp uebersetzt. Die uebrigen
+            # sind bewusst draussen:
+            #   aes.cpp      - '#include <avr/pgmspace.h>' ungeguarded;
+            #                  wird nur mit AES-Signing gebraucht (M2).
+            #   Led.cpp      - Arduino-Pin-Ansteuerung, ersetzt durch
+            #                  port/flipper_led.h
+            #   PhaseCut.cpp - AVR-Timer-Phasenanschnitt, fuer eine
+            #                  Fernbedienung irrelevant.
+            sources=[
+                "port/cxx_runtime.cpp",
+                "port/hm_service.cpp",
+                "port/flipper_eeprom.cpp",
+                "port/flipper_radio.cpp",
+                "port/arduino_compat/arduino_shim.cpp",
+                "upstream/AlarmClock.cpp",
+                "upstream/Globals.cpp",
+                "upstream/HMID.cpp",
+                # AES-Signing. Frueher hier ausgeschlossen, weil die Datei
+                # ungeguarded '#include <avr/pgmspace.h>' zieht. Geloest
+                # ohne Patch durch port/arduino_compat/avr/pgmspace.h.
+                "upstream/aes.cpp",
+            ],
+            # Wird dem App-Code als Include-Pfad exponiert.
+            # arduino_compat MUSS drin sein: upstream schreibt
+            # '#include <Arduino.h>', und dort liegt unser Ersatz.
+            fap_include_paths=[
+                "port",
+                "port/arduino_compat",
+                "upstream",
+            ],
+            cflags=[
+                # Upstream ist AVR/Arduino-Code: alte Idiome, unbenutzte
+                # Parameter in virtuellen Methoden, viel Casting.
+                "-Wno-unused-parameter",
+                "-Wno-unused-variable",
+                "-Wno-unused-function",
+                "-Wno-sign-compare",
+                "-Wno-missing-field-initializers",
+                # upstream testet durchgaengig mit '#if ARDUINO_ARCH_AVR'
+                # statt '#ifdef' -- also auf undefinierten Makros. Das ist
+                # gewollt (der Zweig soll inaktiv sein), loest aber
+                # -Werror=undef aus.
+                "-Wno-undef",
+                # NUR ZUR FEHLERSUCHE einkommentieren.
+                #
+                # fbt uebersetzt FAPs mit -DNDEBUG. upstream/Debug.h macht
+                # daraus leere DPRINT/DHEX/DDEC-Makros -- AskSin++ schweigt
+                # also komplett, und der Serial-Shim in arduino_compat/
+                # laeuft nie an. Mit -UNDEBUG wird die Statemachine
+                # (Pairing, Config, Peers) im Log sichtbar.
+                #
+                # Nicht dauerhaft aktiv lassen: DPRINT feuert dann auch
+                # mitten im ACK-Fenster (Device::send ruft msg.dump()) und
+                # verletzt CLAUDE.md §8.1. -UNDEBUG steht hier NACH den
+                # cdefines und gewinnt deshalb gegen das -DNDEBUG der
+                # Toolchain. FURI_NDEBUG bleibt unberuehrt, furi_assert()
+                # aendert sein Verhalten also nicht.
+                # "-UNDEBUG",
+                #
+                # NICHT hinzufuegen: -w (killt auch die Warnungen, die wir
+                # in port/ sehen wollen) oder -fexceptions/-frtti (die FAP-
+                # Runtime unterstuetzt beides nicht).
+            ],
+            # Diese Schalter MUESSEN hier stehen, nicht nur in
+            # port/flipper_config.h: die upstream-.cpp-Dateien sehen den
+            # Config-Header nie. Waeren TICKS_PER_SECOND oder E2END nur
+            # dort gesetzt, haetten AlarmClock.cpp und der Rest der App
+            # verschiedene Tickraten bzw. Storage-Groessen -- ein stiller
+            # ODR-Bruch, den kein Compiler meldet.
+            cdefines=[
+                # Aktiviert in upstream den Arduino-Pfad. Entscheidend fuer:
+                #   - Atomic.h: echte Cortex-M-PRIMASK-Implementierung von
+                #     ATOMIC_BLOCK (ohne ARDUINO waere es ein NO-OP und
+                #     AlarmClock::add/cancel ungeschuetzt)
+                #   - Debug.h: verhindert den <iostream>-Zweig
+                # Der Wert ist eine uebliche Arduino-Versionsnummer; upstream
+                # prueft nur auf Existenz.
+                "ARDUINO=10819",
+                # Schneidet in upstream/Radio.h den kompletten AVR-Funkstack
+                # heraus (SPI, GDO0-ISR, CC1101/Si4431/RFM69-Treiber). Ersetzt
+                # durch port/flipper_radio.h.
+                # -> lib/asksinpp/patches/001-radio-flipper-port.patch
+                "ASKSIN_FLIPPER_PORT",
+                # RealTimeClock ist reines AVR-Timer2. -> flipper_config.h
+                "NORTC",
+                # 100 Ticks/s = Upstream-Default. NICHT erhoehen:
+                # Alarm::tick ist ein 24-Bit-Bitfeld.
+                "TICKS_PER_SECOND=100UL",
+                # EEPROM-Shadow. E2END ist die LETZTE Adresse (AVR-Semantik),
+                # upstream rechnet size() = E2END + 1.
+                "ASKSIN_EEPROM_SIZE=1024",
+                "E2END=1023",
+                # Ersetzt upstream/InternalEprom komplett.
+                "STORAGEDRIVER=as::FlipperEeprom",
+                # ------------------------------------------------------
+                #  AES-Signing (CLAUDE.md §9.5)
+                #
+                #  Die CCU beantwortet Tastendrucke mit einer
+                #  AES-Challenge (Typ 0x02, Payload[0] = 0x04), sobald
+                #  AES_ACTIVE (List1 Register 0x08) fuer den Kanal gesetzt
+                #  ist -- und das setzt sie beim Anlernen selbst.
+                #  Ohne Signatur kommt der Tastendruck nicht an.
+                #
+                #  USE_AES schaltet in upstream/Sign.h den echten KeyStore
+                #  frei und in Device.h die Zweige processChallenge() /
+                #  requestSignature().
+                #
+                #  ACHTUNG -- AENDERT DAS EEPROM-LAYOUT:
+                #  KeyStore::size() springt von 0 auf 17 Byte, und
+                #  MultiChannelDevice::checksum() nimmt diesen Wert mit auf
+                #  (MultiChannelDevice.h:82). Ein vorhandenes eeprom.bin
+                #  bekommt damit einen Checksum-Mismatch, StorageWrapper
+                #  legt die Defaults neu an -- das Geraet ist danach
+                #  UNGEPAART und muss einmalig neu angelernt werden.
+                #  HMID und Seriennummer ueberleben das (die stehen im
+                #  Dateikopf, nicht im Shadow -- CLAUDE.md §6.4).
+                #
+                #  Muss hier stehen und nicht nur in flipper_config.h:
+                #  USE_AES veraendert ueber KeyStore::size() das
+                #  Speicherlayout. Saehen upstream-Uebersetzungseinheiten
+                #  einen anderen Wert als der Rest, waere das ein stiller
+                #  ODR-Bruch (CLAUDE.md §4.5).
+                "USE_AES",
+                # ------------------------------------------------------
+                #  HM_DEF_KEY -- Schluessel des Auslieferungszustands
+                #
+                #  !!! DIESER WERT IST NICHT VERIFIZIERT !!!
+                #
+                #  Es ist der Beispielwert aus upstream/README.md ("Enable
+                #  AES Support") und aus der Upstream-CI (.travis.yml).
+                #  Der echte eQ-3-Werksschluessel ist in allen HM-Geraeten
+                #  gleich (FHEM-Wiki "AES Encryption"), wird dort aber
+                #  nicht veroeffentlicht -- er wurde hier deshalb NICHT
+                #  geraten.
+                #
+                #  Der Schluessel ist zur Laufzeit ueberschreibbar, ohne
+                #  neu zu bauen: /ext/apps_data/hm_rc8/aes_key.txt
+                #  (siehe port/flipper_eeprom.cpp, loadAesKey()). Erst
+                #  wenn der richtige Wert bekannt ist, gehoert er hierher.
+                #
+                #  HM_DEF_KEY_INDEX ist der Schluesselindex des
+                #  Auslieferungszustands. Die CCU hat in ihrer Challenge
+                #  Index 0x00 verlangt -- das entspricht Schluesselnummer 0
+                #  (der Funkindex ist das Doppelte der Schluesselnummer,
+                #  FHEM-Wiki), also dem Werksschluessel. Ein eigener
+                #  System-Sicherheitsschluessel wuerde einen hoeheren Index
+                #  bringen.
+                "HM_DEF_KEY=0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10",
+                "HM_DEF_KEY_INDEX=0",
+            ],
+        ),
+    ],
+
+    # Kein fap_libs noetig:
+    #   subghz_devices_* und furi_hal_* stehen in api_symbols.csv (API 87.1)
+    #   und werden vom ELF-Loader dynamisch aufgeloest.  -> CLAUDE.md §2.3
+    #
+    # "requires" ist fuer EXTERNAL-Apps wirkungslos und dient hier nur der
+    # Dokumentation der zur Laufzeit geoeffneten Records
+    # (furi_record_open: RECORD_GUI / RECORD_NOTIFICATION / RECORD_STORAGE).
+    requires=[
+        "gui",
+        "notification",
+        "storage",
+    ],
+)

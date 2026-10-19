@@ -1,0 +1,61 @@
+Homematic BidCos Remote (HM-RC-8) fuer Flipper Zero
+Copyright (c) 2026 Agem
+
+Lizenz: Creative Commons Namensnennung - Nicht kommerziell - Weitergabe unter
+gleichen Bedingungen 3.0 Deutschland (CC BY-NC-SA 3.0 DE)
+
+Lizenzurkunde (Kurzfassung):
+    https://creativecommons.org/licenses/by-nc-sa/3.0/de/
+Vollstaendiger, rechtsverbindlicher Lizenztext (Legal Code):
+    https://creativecommons.org/licenses/by-nc-sa/3.0/de/legalcode
+
+Die Kurzfassung ist kein Ersatz fuer den Lizenztext. Verbindlich ist
+ausschliesslich der Legal Code unter der zweiten Adresse.
+
+
+WARUM DIESE LIZENZ UND KEINE ANDERE
+
+Dieses Projekt ist eine Portierung von AskSin++ (pa-pa/AskSinPP) auf den
+Flipper Zero. Der Code in lib/asksinpp/port/ ist gegen die Klassen und
+Templates von AskSin++ geschrieben und wird mit dessen Quellen in ein
+gemeinsames Binaer uebersetzt -- er ist damit ein abgeleitetes Werk.
+
+AskSin++ steht unter CC BY-NC-SA 3.0 DE (Lizenzvermerk im Kopf jeder
+Upstream-Datei, z. B. upstream/AskSinPP.h). Die Bedingung "Weitergabe unter
+gleichen Bedingungen" (ShareAlike) verlangt, dass abgeleitete Werke unter
+derselben oder einer kompatiblen Lizenz weitergegeben werden. Eine
+Veroeffentlichung unter MIT, Apache-2.0 oder GPL waere damit nicht moeglich;
+CC BY-NC-SA und GPL sind zudem untereinander nicht kompatibel.
+
+Praktische Folgen, kurz:
+
+  * Namensnennung       Dieses Projekt UND AskSin++ (pa-pa) sind bei
+                        Weitergabe oder Bearbeitung zu nennen, siehe NOTICE.md.
+  * Nicht kommerziell   Keine Nutzung, die primaer auf einen geschaeftlichen
+                        Vorteil oder eine Verguetung gerichtet ist. Das
+                        betrifft auch den Verkauf vorgebauter .fap-Dateien.
+  * Weitergabe unter    Bearbeitungen und Forks stehen wieder unter
+    gleichen Bedingungen CC BY-NC-SA 3.0 DE. Das gilt auch fuer das
+                        gebaute .fap, nicht nur fuer den Quellcode.
+
+
+WAS DIESE LIZENZ NICHT ABDECKT
+
+  * AskSin++ selbst. Der Upstream-Code liegt NICHT in diesem Repository,
+    sondern wird als Git-Submodul (lib/asksinpp/upstream) von
+    https://github.com/pa-pa/AskSinPP geholt. Dort gelten die Bedingungen
+    des Urhebers -- siehe NOTICE.md.
+  * Die Flipper-Zero-Firmware und ihr SDK (ufbt). Sie werden hier weder
+    mitgeliefert noch veraendert; es wird ausschliesslich gegen ihre
+    oeffentliche FAP-Schnittstelle gebaut.
+  * Marken. "Homematic" und "BidCos" sind Marken der eQ-3 AG, "Flipper Zero"
+    eine Marke von Flipper Devices Inc. Dieses Projekt ist inoffiziell und
+    steht in keiner Verbindung zu diesen Unternehmen.
+
+
+KEINE GEWAEHR
+
+Die Software wird ohne jede Gewaehrleistung bereitgestellt, soweit
+gesetzlich zulaessig; Einzelheiten regelt der Legal Code. Der Betrieb von
+Funksendern unterliegt nationalem Recht -- siehe README.md, Abschnitt
+"Recht und Funkbetrieb".

@@ -1,0 +1,78 @@
+name: Hardware-Testbericht / Hardware test report
+description: Beobachtung an echter Zentrale melden — auch wenn alles geklappt hat
+labels: ["hardware-test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Das ist der wertvollste Beitrag zu diesem Projekt. In diesem Repo gilt
+        „sollte funktionieren" nicht als Testergebnis — jede Beobachtung an
+        echter Hardware hilft, egal ob erfolgreich oder nicht.
+
+        Besonders gesucht: **kommen Tastendrücke an einer angelernten CCU an?**
+        Davon hängt der einzige offene Punkt des Projekts ab (AES-Schlüssel).
+
+        **Bitte keine Schlüssel posten** — gesucht ist, *ob* der Signaturpfad
+        trägt, nicht Schlüsselmaterial. Auch die HMIDs deiner anderen Geräte
+        bitte aus Logs entfernen.
+
+  - type: dropdown
+    id: pairing
+    attributes:
+      label: Anlernen an der Zentrale
+      options:
+        - "Funktioniert — Gerät erscheint mit acht Kanälen"
+        - "Teilweise — Gerät erscheint, aber unvollständig"
+        - "Scheitert"
+        - "Nicht versucht"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: buttons
+    attributes:
+      label: Tastendrücke nach dem Anlernen
+      options:
+        - "ACK — kommen an"
+        - "T/O — Zeitüberschreitung"
+        - "NAK"
+        - "RGN — Senden gesperrt"
+        - "Nicht versucht"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: persist
+    attributes:
+      label: Übersteht das Pairing einen Neustart der App?
+      options: ["Ja", "Nein", "Nicht versucht"]
+
+  - type: input
+    id: fw
+    attributes:
+      label: Firmware und SDK
+      description: Firmware auf dem Gerät und SDK, mit dem gebaut wurde
+    validations:
+      required: true
+
+  - type: input
+    id: ccu
+    attributes:
+      label: Zentrale
+      description: Typ und Version
+
+  - type: input
+    id: key
+    attributes:
+      label: Verwendeter AES-Schlüssel
+      description: >
+        **Nicht den Wert eintragen.** Nur, woher er kam: "eingebauter
+        Beispielwert", "eigener Systemsicherheitsschlüssel über aes_key.txt",
+        "Werksschlüssel über aes_key.txt".
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: Was war zu beobachten?
+      description: Statuszeile, Diagnosezeile, Verhalten in der WebUI der Zentrale
+      render: text

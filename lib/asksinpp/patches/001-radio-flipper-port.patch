@@ -1,0 +1,50 @@
+﻿diff --git a/Radio.h b/Radio.h
+index 3f45150..b0676ea 100644
+--- a/Radio.h
++++ b/Radio.h
+@@ -14,6 +14,38 @@
+ #ifndef _RADIO_H
+ #define _RADIO_H
+ 
++//- ---------------------------------------------------------------------------
++//  FLIPPER-PORT-PATCH -- siehe lib/asksinpp/patches/001-radio-flipper-port.patch
++//
++//  Der gesamte Inhalt dieser Datei ist AVR-/Arduino-Funktechnik: eigene
++//  SPI-Implementierungen (AvrSPI, LibSPI), ISR-getriebenes GDO0-Handling und
++//  die Treiber fuer CC1101/Si4431/RFM69.
++//
++//  Auf dem Flipper wird davon nichts gebraucht -- der CC1101 wird ueber
++//  subghz_devices_* im Packet-Mode angesprochen (port/flipper_radio.h).
++//  Schlimmer noch, der Code laesst sich hier gar nicht uebersetzen:
++//    - Radio-Si4431.h:172 definiert WRITE_REG und kollidiert damit mit
++//      CMSIS (stm32wbxx.h), was jede STM32-LL-Headerzeile zerlegt
++//    - Radio-Si4431.h nutzt MISO/MOSI aus der Arduino-Pinbelegung
++//    - Radio-RFM69.h braucht bitRead()
++//
++//  Warum ein Patch und kein Shim: Device.h:15 inkludiert "Radio.h" in
++//  Anfuehrungszeichen. Quoted-Includes werden zuerst relativ zum
++//  inkludierenden File aufgeloest, also gewinnt immer upstream/Radio.h --
++//  ein Shim im Include-Pfad kann diese Datei nicht ersetzen.
++//- ---------------------------------------------------------------------------
++#ifdef ASKSIN_FLIPPER_PORT
++
++#include "Message.h"
++#include "AlarmClock.h"
++
++namespace as {
++// Wird von Globals.cpp definiert und von upstream-Templates referenziert.
++extern void* __gb_radio;
++}
++
++#else // ASKSIN_FLIPPER_PORT
++
+ #ifdef ARDUINO_ARCH_ESP32
+   #include <SPI.h>
+   typedef uint8_t BitOrder;
+@@ -593,4 +625,6 @@ class RFM69Radio : public Radio<SPIType, GDO0, PWRPIN, SENDDELAY, RFM69<SPIType,
+ 
+ }
+ 
++#endif // ASKSIN_FLIPPER_PORT
++
+ #endif

@@ -1,0 +1,14 @@
+[submodule "lib/asksinpp/upstream"]
+	path = lib/asksinpp/upstream
+	url = https://github.com/pa-pa/AskSinPP.git
+	# AskSin++ ist Fremdcode unter CC BY-NC-SA 3.0 DE (siehe NOTICE.md) und
+	# liegt deshalb nicht in diesem Repository, sondern nur als Verweis.
+	#
+	# ignore = dirty: scripts/setup.* wendet die Patches aus
+	# lib/asksinpp/patches/ auf den Arbeitsbaum des Submoduls an -- upstream/
+	# wird nie direkt editiert (CLAUDE.md §2.2.1). Das Submodul ist damit
+	# dauerhaft "modified content", und zwar absichtlich. Ohne diese Zeile
+	# meldet jedes "git status" diese Aenderung erneut und verdeckt echte
+	# Befunde. Eine Aenderung des festgehaltenen Commits wird weiterhin
+	# angezeigt -- nur der Arbeitsbaum des Submoduls bleibt still.
+	ignore = dirty

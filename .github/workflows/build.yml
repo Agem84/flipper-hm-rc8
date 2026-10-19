@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+#  FAP-Build im CI
+#
+#  Das SDK ist bewusst auf eine EXAKTE Version festgenagelt (sdk-url) statt
+#  auf einen Kanal (sdk-channel). Dieses Projekt ist gegen Unleashed
+#  unlshd-086 / API 87.6 verifiziert, und ein gruener Build gegen eine andere
+#  Firmware sagt nichts darueber aus, ob die App auf dem Zielgeraet richtig
+#  laeuft -- Strukturlayouts an der FAP-Grenze koennen sich zwischen
+#  Firmwarestaenden aendern, ohne dass irgendetwas bricht (README, Abschnitt
+#  "SDK und Geraete-Firmware muessen zusammenpassen").
+#
+#  Beim Hochziehen auf eine neuere Unleashed-Version sind drei Stellen
+#  nachzuziehen: diese URL, die Tabellen in README.md / README.en.md und
+#  CLAUDE.md §0. Danach gegen echte Hardware testen, nicht nur gegen CI.
+#
+#  Kein "ufbt lint"-Schritt: der Linter ist clang-format der Firmware, und
+#  dieses Projekt folgt in lib/asksinpp/port/ bewusst dem Stil des
+#  Upstream-Codes. Ein Formatlauf wuerde Patches unnoetig kollidieren lassen.
+# ---------------------------------------------------------------------------
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ufbt (Unleashed unlshd-086, API 87.6)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Quellen holen (inkl. AskSin++-Submodul)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: AskSin++-Patches anwenden
+        # Das Submodul hat actions/checkout schon geholt, deshalb
+        # --no-submodule. Ohne diesen Schritt bricht der Build ab.
+        run: ./scripts/setup.sh --no-submodule
+
+      - name: FAP bauen
+        id: build
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1
+        with:
+          sdk-url: https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip
+
+      - name: FAP als Artefakt ablegen
+        uses: actions/upload-artifact@v4
+        with:
+          name: hm_rc8-${{ steps.build.outputs.suffix }}
+          path: ${{ steps.build.outputs.fap-artifacts }}
+          if-no-files-found: error

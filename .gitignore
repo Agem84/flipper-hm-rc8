@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------------------
+#  Build-Ausgaben (ufbt)
+#
+#  Fertige FAPs werden nicht im Repo gefuehrt, sondern an ein GitHub-Release
+#  gehaengt bzw. vom CI-Lauf als Artefakt abgelegt. Grund: ein eingechecktes
+#  Binaer veraltet sofort und sagt nichts darueber, gegen welches SDK es
+#  gebaut wurde -- und genau das ist hier die entscheidende Information
+#  (siehe README, Abschnitt "SDK und Geraete-Firmware").
+# ---------------------------------------------------------------------------
+dist/
+build/
+.ufbt/
+*.fap
+*.fal
+*.elf
+*.o
+*.d
+*.map
+*.bin
+.sconsign.dblite
+
+# ---------------------------------------------------------------------------
+#  Maschinenlokale Editor-/Toolchain-Artefakte
+#
+#  .vscode/ wird von "ufbt vscode_dist" erzeugt und enthaelt absolute Pfade
+#  des jeweiligen Rechners (compile_commands.json, launch.json).
+# ---------------------------------------------------------------------------
+.vscode/
+compile_commands.json
+.cache/
+.idea/
+
+# ---------------------------------------------------------------------------
+#  Laufzeitdaten des Geraets -- gehoeren nie ins Repo
+#
+#  aes_key.txt ist der zur Laufzeit ueberschreibbare Homematic-Schluessel
+#  (README, Abschnitt "AES-Signatur"), eeprom.bin der persistierte
+#  Anlernzustand inkl. HMID und Peers.
+# ---------------------------------------------------------------------------
+aes_key.txt
+eeprom.bin
+eeprom.bin.tmp
+
+# ---------------------------------------------------------------------------
+#  Betriebssystem
+# ---------------------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
