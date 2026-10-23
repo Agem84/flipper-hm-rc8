@@ -54,9 +54,14 @@ Das ist hier keine Stilfrage. Ein FAP erhält Strukturgrößen aus den
 SDK-Headern; läuft es gegen eine Firmware mit anderem Layout, schreibt es der
 Firmware Werte an die falsche Stelle. Das passiert **ohne Fehlermeldung und
 ohne Absturz** — der Build ist grün, und der Fehler fällt erst auf dem Funk
-auf. In der Schwester-App dieses Projekts hat genau das die komplette
-BLE-Kopplung gekostet (`FURI_HAL_VERSION_DEVICE_NAME_LENGTH` ist offiziell 18,
-bei Unleashed 21).
+auf.
+
+Ein belegtes Beispiel aus genau diesen beiden Firmwares:
+`FURI_HAL_VERSION_DEVICE_NAME_LENGTH` ist offiziell 18, bei Unleashed 21. Jede
+Struktur, in der dieses Makro steckt, hat damit auf den beiden Firmwares eine
+**andere Größe** — ein FAP, das so eine Struktur über die Firmware-Grenze
+übergibt, beschreibt dann die falschen Offsets. Der Compiler kann das nicht
+sehen, weil er nur die Header des SDK kennt.
 
 Deshalb gilt: **auf dem Gerät dieselbe Firmware wie das Build-SDK.** Die
 Begründung im Detail steht in [CLAUDE.md](CLAUDE.md) §12a.

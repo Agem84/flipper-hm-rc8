@@ -845,8 +845,8 @@ gewesen.**
 
 **Trotzdem wird ab 2026-09-21 gegen das Unleashed-SDK gebaut** (`unlshd-086`,
 API 87.6, isoliertes `UFBT_HOME=~/.ufbt-unleashed`; das offizielle SDK in
-`~/.ufbt` bleibt unangetastet). Grund ist ein Befund aus der Schwester-App
-`mouse_clicker/`: `FURI_HAL_VERSION_DEVICE_NAME_LENGTH` ist offiziell
+`~/.ufbt` bleibt unangetastet). Grund ist ein Befund an einer anderen FAP auf
+derselben Hardware: `FURI_HAL_VERSION_DEVICE_NAME_LENGTH` ist offiziell
 `1+8+9 = 18`, bei Unleashed `1+20 = 21`. Dadurch verschiebt sich in
 `GapConfig` das Feld `conn_param` um 4 Byte, und ein mit dem offiziellen SDK
 gebautes FAP schreibt der Firmware dort Müll hin. Das kostete dort die
