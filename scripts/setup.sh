@@ -47,18 +47,34 @@ if [ ! -f "$upstream/AskSinPP.h" ]; then
 fi
 
 echo "Patches aus lib/asksinpp/patches/ anwenden ..."
+
+# --ignore-whitespace ist nicht Bequemlichkeit, sondern noetig: die Patches
+# liegen per .gitattributes immer mit LF vor, der Arbeitsbaum des Submoduls
+# dagegen unterliegt dessen eigenem core.autocrlf -- auf Windows also CRLF.
+# Ohne die Option findet git apply dort keine einzige Kontextzeile. Die
+# Option lockert nur den Vergleich am Zeilenende; der Inhalt der Treffer
+# bleibt exakt.
+APPLY="--ignore-whitespace"
+
 found=0
 for patch in "$patchdir"/*.patch; do
     [ -e "$patch" ] || continue
     found=1
     name=$(basename -- "$patch")
-    if git -C "$upstream" apply --reverse --check "$patch" >/dev/null 2>&1; then
+    if git -C "$upstream" apply $APPLY --reverse --check "$patch" >/dev/null 2>&1; then
         echo "  bereits angewandt : $name"
-    elif git -C "$upstream" apply --check "$patch" >/dev/null 2>&1; then
-        git -C "$upstream" apply "$patch"
+    elif git -C "$upstream" apply $APPLY --check "$patch" >/dev/null 2>&1; then
+        git -C "$upstream" apply $APPLY "$patch"
         echo "  angewandt         : $name"
     else
         echo "FEHLER: $name passt nicht auf den Arbeitsbaum." >&2
+        echo "" >&2
+        # Die Meldung von git selbst ausgeben, nicht wegwerfen -- ohne sie
+        # ist nicht zu unterscheiden, ob der Commit nicht stimmt, die Datei
+        # fehlt oder die Zeilenenden nicht passen.
+        echo "        git sagt dazu:" >&2
+        git -C "$upstream" apply $APPLY --check "$patch" 2>&1 | sed 's/^/        /' >&2
+        echo "" >&2
         echo "        Steht das Submodul auf dem Commit, den dieses Repo" >&2
         echo "        festhaelt? Pruefen mit:" >&2
         echo "            git submodule status" >&2

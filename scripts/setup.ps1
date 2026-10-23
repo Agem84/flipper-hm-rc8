@@ -44,6 +44,14 @@ $upstream ist leer -- das Submodul fehlt. Abhilfe:
 }
 
 Write-Host 'Patches aus lib/asksinpp/patches/ anwenden ...'
+
+# --ignore-whitespace ist nicht Bequemlichkeit, sondern noetig: die Patches
+# liegen per .gitattributes immer mit LF vor, der Arbeitsbaum des Submoduls
+# dagegen unterliegt dessen eigenem core.autocrlf -- auf Windows also CRLF.
+# Ohne die Option findet git apply dort keine einzige Kontextzeile. Die Option
+# lockert nur den Vergleich am Zeilenende; der Inhalt der Treffer bleibt exakt.
+$applyOpt = '--ignore-whitespace'
+
 $patches = @(Get-ChildItem -Path $patchdir -Filter '*.patch' -File -ErrorAction SilentlyContinue | Sort-Object Name)
 
 if ($patches.Count -eq 0) {
@@ -53,22 +61,31 @@ if ($patches.Count -eq 0) {
 foreach ($patch in $patches) {
     $p = $patch.FullName
 
-    git -C $upstream apply --reverse --check $p 2>$null
+    git -C $upstream apply $applyOpt --reverse --check $p 2>$null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  bereits angewandt : $($patch.Name)"
         continue
     }
 
-    git -C $upstream apply --check $p 2>$null
+    git -C $upstream apply $applyOpt --check $p 2>$null
     if ($LASTEXITCODE -eq 0) {
-        git -C $upstream apply $p
+        git -C $upstream apply $applyOpt $p
         if ($LASTEXITCODE -ne 0) { Write-Error "git apply ist bei $($patch.Name) fehlgeschlagen." }
         Write-Host "  angewandt         : $($patch.Name)"
         continue
     }
 
+    # Die Meldung von git selbst ausgeben, nicht wegwerfen -- ohne sie ist
+    # nicht zu unterscheiden, ob der Commit nicht stimmt, die Datei fehlt oder
+    # die Zeilenenden nicht passen.
+    $gitSagt = (git -C $upstream apply $applyOpt --check $p 2>&1 | Out-String).Trim()
+
     Write-Error @"
 $($patch.Name) passt nicht auf den Arbeitsbaum.
+
+git sagt dazu:
+$gitSagt
+
 Steht das Submodul auf dem Commit, den dieses Repo festhaelt? Pruefen mit:
     git submodule status
 Zuruecksetzen mit:

@@ -1,10 +1,21 @@
 # Zeilenenden im Repo normalisieren, im Arbeitsbaum nativ lassen.
 * text=auto
 
-# Patches sind byteweise exakt gegen einen Upstream-Commit erzeugt. Eine
-# Zeilenenden-Umschreibung wuerde "git apply" scheitern lassen.
-*.patch -text
-*.diff -text
+# Patches werden immer mit LF ausgecheckt, auf jeder Plattform.
+#
+# Hier stand vorher "-text" (byteweise durchreichen). Das war falsch: der Patch
+# wurde damit mit CRLF eingecheckt, so wie er auf einem Windows-Rechner
+# entstanden ist. Der Zielbaum -- das AskSin++-Submodul -- unterliegt dieser
+# Datei aber NICHT, Attribute gelten nicht ueber eine Submodulgrenze. Dort
+# entscheidet core.autocrlf: auf Windows CRLF, auf Linux LF. Ein CRLF-Patch
+# gegen eine LF-Datei findet keine einzige Kontextzeile, und der CI-Lauf ist
+# genau daran gescheitert.
+#
+# Mit eol=lf sind die vom Patch EINGEFUEGTEN Zeilen ueberall LF. Die andere
+# Haelfte des Problems -- Kontextzeilen gegen eine CRLF-Arbeitskopie auf
+# Windows -- loesen scripts/setup.* mit "git apply --ignore-whitespace".
+*.patch text eol=lf
+*.diff text eol=lf
 
 # Shell-Skripte brauchen LF, auch wenn sie unter Windows ausgecheckt werden
 # (werden im CI-Container ausgefuehrt).
