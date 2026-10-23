@@ -78,8 +78,9 @@ The pinned `--url` gives exactly the SDK this project is verified against; CI
 uses the same one. `ufbt update --index-url=https://up.unleashedflip.com/directory.json`
 would give the newest Unleashed release instead.
 
-Pre-built `.fap` files are attached to each CI run and to the
-[releases](https://github.com/Agem84/flipper-hm-rc8/releases); copy one to
+There is **no download** — building it yourself is the only way. The reason is
+a licence collision in the library's AES part, not convenience; see
+[Licence](#licence). The finished `.fap` ends up in `dist/` and goes to
 `/ext/apps/Sub-GHz/` on the SD card.
 
 ---
@@ -133,11 +134,23 @@ CCU — and with it the answer to whether the key path is correct.
 
 ---
 
-## License
+## Licence
 
-**CC BY-NC-SA 3.0 DE** — attribution, non-commercial, share-alike. See
-[LICENSE](LICENSE). This licence is required by the share-alike terms of
-AskSin++; it was not freely chosen.
+**CC BY-NC-SA 3.0 DE** — attribution, non-commercial, share-alike.
+[`LICENSE`](LICENSE) holds the verbatim legal text; note that the German port
+of this licence exists in German only, there is no official English wording of
+it. What the licence covers and what it does not is set out in
+[LICENSE-HINWEIS.md](LICENSE-HINWEIS.md) (German).
+
+The licence was **not freely chosen**: the port code is a derivative work of
+AskSin++, whose share-alike term dictates it. MIT, Apache-2.0 and GPL are
+therefore ruled out.
+
+> ⚠️ **There is deliberately no pre-built `.fap`.** `upstream/aes.cpp` is part
+> of the build and carries a second notice besides the CC one: *GPLv3 or later*
+> (Daniel Otte's AVR-Crypto-Lib). A built binary would combine GPLv3 with a
+> non-commercial restriction, and the two are not compatible. Building from
+> source for your own use is unaffected.
 
 Thanks to **pa-pa** and the AskSin++ contributors — without that library this
 project would not exist.

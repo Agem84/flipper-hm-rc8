@@ -18,7 +18,13 @@ Diese App ist eine Portierung von [AskSin++](https://github.com/pa-pa/AskSinPP)
 (© pa-pa, CC BY-NC-SA 3.0 DE) auf den Flipper Zero. Auch dieses Binär ist ein
 abgeleitetes Werk und steht damit unter **CC BY-NC-SA 3.0 DE** —
 Namensnennung, nicht kommerziell, Weitergabe unter gleichen Bedingungen.
-Siehe `LICENSE` und `NOTICE.md`.
+Siehe `LICENSE`, `LICENSE-HINWEIS.md` und `NOTICE.md`.
+
+Enthalten ist ausserdem AES-Code aus Daniel Ottes **AVR-Crypto-Lib**
+(© 2008, GPLv3 or later), über `upstream/aes.cpp`. Dass dieser Vermerk mit dem
+Nicht-kommerziell-Gebot kollidiert, ist der offene Punkt aus
+`LICENSE-HINWEIS.md` — ohne dessen Klärung sollte dieses Release nicht
+veröffentlicht werden.
 
 Homematic und BidCos sind Marken der eQ-3 AG, Flipper Zero ist eine Marke von
 Flipper Devices Inc. Dieses Projekt ist inoffiziell und unabhängig.

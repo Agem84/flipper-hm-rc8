@@ -45,8 +45,9 @@ body:
     attributes:
       label: SDK, mit dem das FAP gebaut wurde
       description: >
-        Oder "aus dem Release geladen" samt Dateiname. Das ist der häufigste
-        Grund für stilles Fehlverhalten — siehe README.
+        Es gibt keine fertigen Downloads, also: mit welchem SDK hast du
+        gebaut? Das ist der häufigste Grund für stilles Fehlverhalten —
+        siehe README.
     validations:
       required: true
 

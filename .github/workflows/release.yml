@@ -14,11 +14,27 @@
 #  Der Hinweis in den Release-Notes ist Teil der Namensnennungspflicht und
 #  darf nicht entfallen.
 # ---------------------------------------------------------------------------
+#
+#  ACHTUNG -- DIESER WORKFLOW IST ABGESCHALTET.
+#
+#  upstream/aes.cpp ist Teil des Builds und traegt neben dem
+#  CC-BY-NC-SA-Vermerk von AskSin++ einen zweiten: "GPLv3 or later"
+#  (AVR-Crypto-Lib von Daniel Otte). In einem gebauten .fap treffen damit
+#  GPLv3 und das Nicht-kommerziell-Gebot aufeinander -- und das ist eine
+#  Beschraenkung, die die GPL ihren Empfaengern nicht auferlegen darf. Ein
+#  Release waere eine Weitergabe genau dieses Binaers.
+#
+#  Deshalb ist der Tag-Ausloeser entfernt. Der Workflow bleibt als Bauplan
+#  liegen; er laesst sich von Hand starten, sobald die Lizenzfrage mit dem
+#  Upstream geklaert ist. Dann gehoert auch der Tag-Ausloeser wieder her:
+#      on:
+#        push:
+#          tags: ['v*']
+#  Einordnung: LICENSE-HINWEIS.md, Abschnitt "Der AES-Teil von AskSin++".
+#
 name: release
 
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:

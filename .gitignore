@@ -1,11 +1,13 @@
 # ---------------------------------------------------------------------------
 #  Build-Ausgaben (ufbt)
 #
-#  Fertige FAPs werden nicht im Repo gefuehrt, sondern an ein GitHub-Release
-#  gehaengt bzw. vom CI-Lauf als Artefakt abgelegt. Grund: ein eingechecktes
-#  Binaer veraltet sofort und sagt nichts darueber, gegen welches SDK es
-#  gebaut wurde -- und genau das ist hier die entscheidende Information
-#  (siehe README, Abschnitt "SDK und Geraete-Firmware").
+#  Fertige FAPs werden nicht im Repo gefuehrt. Zwei Gruende, beide eigenstaendig:
+#  Ein eingechecktes Binaer veraltet sofort und sagt nichts darueber, gegen
+#  welches SDK es gebaut wurde -- und genau das ist hier die entscheidende
+#  Information (README, "SDK und Geraete-Firmware"). Davon unabhaengig darf das
+#  Binaer derzeit ohnehin nicht weitergegeben werden: ueber upstream/aes.cpp
+#  steckt GPLv3-Code darin, der mit dem Nicht-kommerziell-Gebot von
+#  CC BY-NC-SA nicht vereinbar ist (LICENSE-HINWEIS.md).
 # ---------------------------------------------------------------------------
 dist/
 build/

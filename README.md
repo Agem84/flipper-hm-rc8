@@ -121,13 +121,14 @@ Aufs Gerät bringen und starten:
 UFBT_HOME=~/.ufbt-unleashed ufbt launch
 ```
 
-Log mitlesen: `ufbt cli`, dort `log`. Fertige `.fap`-Dateien liegen danach in
-`dist/` (nicht im Repo geführt) und hängen außerdem an jedem CI-Lauf.
+Log mitlesen: `ufbt cli`, dort `log`. Das fertige `.fap` liegt danach in
+`dist/` und wird nicht im Repo geführt. Der CI-Lauf baut denselben Stand, legt
+das Ergebnis aber bewusst nicht als Artefakt ab — siehe [Lizenz](#lizenz).
 
-Alternativ ohne Build: die `.fap` aus den
-[Releases](https://github.com/Agem84/flipper-hm-rc8/releases) nach
-`/ext/apps/Sub-GHz/` auf die SD-Karte kopieren. Auch dann muss die
-Gerätefirmware zum Build passen (siehe oben).
+Einen Download gibt es **nicht** — selbst bauen ist hier der einzige Weg. Der
+Grund ist eine Lizenzkollision im AES-Teil der Bibliothek, nicht Bequemlichkeit;
+siehe [Lizenz](#lizenz). Das fertige `.fap` liegt nach dem Build in `dist/` und
+gehört nach `/ext/apps/Sub-GHz/` auf die SD-Karte.
 
 ---
 
@@ -261,8 +262,21 @@ CCU — und damit die Antwort auf die Frage, ob der Schlüsselpfad stimmt.
 ## Lizenz
 
 **CC BY-NC-SA 3.0 DE** — Namensnennung, nicht kommerziell, Weitergabe unter
-gleichen Bedingungen. Siehe [LICENSE](LICENSE); die Lizenz ist vom
-ShareAlike-Gebot von AskSin++ vorgegeben und nicht frei gewählt.
+gleichen Bedingungen. [`LICENSE`](LICENSE) enthält den deutschen Lizenztext im
+Wortlaut; was darunter fällt und was nicht, steht in
+[LICENSE-HINWEIS.md](LICENSE-HINWEIS.md).
+
+Die Lizenz ist **nicht frei gewählt**: Der Portierungscode ist ein
+abgeleitetes Werk von AskSin++, und dessen Weitergabe-unter-gleichen-
+Bedingungen-Gebot gibt sie vor. MIT, Apache-2.0 und GPL sind damit
+ausgeschlossen.
+
+> ⚠️ **Es gibt bewusst kein vorgebautes `.fap`.** `upstream/aes.cpp` ist Teil
+> des Builds und trägt neben dem CC-Vermerk einen zweiten: *GPLv3 or later*
+> (AVR-Crypto-Lib von Daniel Otte). In einem gebauten Binär träfen damit GPLv3
+> und das Nicht-kommerziell-Gebot aufeinander, und die beiden sind nicht
+> miteinander vereinbar. Für den Selbstbau aus dem Quellcode ist das
+> folgenlos. Einordnung in [LICENSE-HINWEIS.md](LICENSE-HINWEIS.md).
 
 Dank an **pa-pa** und die Mitwirkenden an [AskSin++](https://github.com/pa-pa/AskSinPP)
 — ohne diese Bibliothek gäbe es dieses Projekt nicht.

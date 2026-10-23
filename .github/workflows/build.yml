@@ -51,9 +51,18 @@ jobs:
           # "HW target must be specified when using direct SDK URL".
           sdk-hw-target: f7
 
-      - name: FAP als Artefakt ablegen
-        uses: actions/upload-artifact@v4
-        with:
-          name: hm_rc8-${{ steps.build.outputs.suffix }}
-          path: ${{ steps.build.outputs.fap-artifacts }}
-          if-no-files-found: error
+      # Bewusst KEIN upload-artifact.
+      #
+      # Artefakte eines oeffentlichen Repositories sind oeffentlich
+      # herunterladbar -- das waere eine Weitergabe des gebauten Binaers. Darin
+      # steckt ueber upstream/aes.cpp GPLv3-Code neben CC-BY-NC-SA-Code, und
+      # das Nicht-kommerziell-Gebot ist eine Beschraenkung, die die GPL ihren
+      # Empfaengern nicht auferlegen darf (NOTICE.md, LICENSE-HINWEIS.md).
+      # Solange das nicht geklaert ist, geht hier kein Binaer raus.
+      #
+      # Der Build selbst bleibt: er belegt, dass der Stand aus einem frischen
+      # Klon uebersetzt -- und genau das ist der Zweck dieses Workflows.
+      - name: Nachweis, dass ein FAP entstanden ist
+        run: |
+          ls -l dist/
+          test -s dist/hm_rc8.fap

@@ -5,6 +5,9 @@ Die folgende Aufstellung ist Teil der Namensnennungspflicht aus
 [`LICENSE`](LICENSE) (CC BY-NC-SA 3.0 DE) und muss bei Weitergabe oder
 Bearbeitung erhalten bleiben.
 
+Was die Lizenz abdeckt und was nicht, steht in
+[LICENSE-HINWEIS.md](LICENSE-HINWEIS.md).
+
 ---
 
 ## AskSin++ — die eigentliche Protokollimplementierung
@@ -15,7 +18,7 @@ Bearbeitung erhalten bleiben.
 | Urheber | **pa-pa** und Mitwirkende |
 | Quelle | <https://github.com/pa-pa/AskSinPP> |
 | Lizenz | **CC BY-NC-SA 3.0 DE** — <https://creativecommons.org/licenses/by-nc-sa/3.0/de/> |
-| Lizenzvermerk | im Kopf jeder Upstream-Datei, z. B. `upstream/AskSinPP.h` |
+| Lizenzvermerk | im Kopf jeder Upstream-Datei, z. B. `upstream/AskSinPP.h`. Nachgeprueft ueber alle `.h`/`.cpp` ausserhalb von `doc/` und `examples/`: einheitlich dieselbe Lizenz, keine Ausnahme — bis auf `aes.*`, siehe unten. |
 | Eingebunden als | Git-Submodul unter `lib/asksinpp/upstream`, fest auf Commit `21bab8b92f7982c29beca08ff3c0ad6ef1e72a5c` |
 | Version | AskSin++ 5.0.3 (`ASKSIN_PLUS_PLUS_MAJOR/MINOR/SERVICE`) |
 
@@ -44,6 +47,23 @@ Derzeit ist das genau eine Aenderung an genau einer Datei:
 Daraus folgt auch: `git status` meldet fuer das Submodul dauerhaft
 `modified content`. Das ist beabsichtigt und in `.gitmodules` per
 `ignore = dirty` ruhiggestellt.
+
+### AVR-Crypto-Lib (in AskSin++ als `aes.h` / `aes.cpp`)
+
+|  |  |
+|---|---|
+| Urheber | **Daniel Otte**, Copyright (C) 2008 — fuer AskSin++ angepasst von *trilu* |
+| Lizenzvermerk | `upstream/aes.h`, `upstream/aes.cpp`: *"adoption of Daniel Otte's cool AVR-Crypto-Lib, Copyright (C) 2008, GPLv3 or later"* |
+| Lizenz | **GPL-3.0-or-later**, zusaetzlich zum CC-BY-NC-SA-Vermerk von AskSin++ in derselben Datei |
+| Eingebunden | nicht im Repository; `upstream/aes.cpp` ist aber Teil des Builds (`USE_AES` in `application.fam`) |
+
+Das sind die **einzigen zwei** Dateien im gesamten Upstream mit einem
+GPL-Vermerk, und sie tragen zwei Lizenzvermerke gleichzeitig. Fuer dieses
+Repository ist das folgenlos — es enthaelt keine der beiden Dateien. Fuer die
+Weitergabe eines **gebauten** `.fap` ist es nicht folgenlos: GPLv3 und das
+Nicht-kommerziell-Gebot von CC BY-NC-SA sind nicht miteinander vereinbar.
+Deshalb liegt hier kein vorgebautes Binaer bei. Einordnung in
+[LICENSE-HINWEIS.md](LICENSE-HINWEIS.md).
 
 ---
 
