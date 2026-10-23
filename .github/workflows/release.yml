@@ -42,6 +42,8 @@ jobs:
         uses: flipperdevices/flipperzero-ufbt-action@v0.1
         with:
           sdk-url: https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip
+          # Pflicht zusammen mit sdk-url -- siehe build.yml.
+          sdk-hw-target: f7
 
       - name: FAP einsammeln
         run: |

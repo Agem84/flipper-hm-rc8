@@ -110,7 +110,9 @@ ufbt
 > `ufbt update` holt die **neueste** Unleashed-Version. Das ist nicht
 > zwangsläufig `unlshd-086`, gegen das dieses Projekt verifiziert ist. Exakt
 > diesen Stand bekommt man mit
-> `ufbt update --url=https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip`
+> `ufbt update --hw-target=f7 --url=https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip`
+> (`--hw-target` ist bei einer direkten URL Pflicht — ohne Index kann `ufbt`
+> das Ziel nicht aus dem Archiv ableiten)
 > — genau das macht auch der CI-Lauf.
 
 Aufs Gerät bringen und starten:

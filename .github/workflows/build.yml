@@ -46,6 +46,10 @@ jobs:
         uses: flipperdevices/flipperzero-ufbt-action@v0.1
         with:
           sdk-url: https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip
+          # Pflicht zusammen mit sdk-url: ohne Index kann ufbt das Ziel nicht
+          # aus dem Archiv ableiten und bricht ab mit
+          # "HW target must be specified when using direct SDK URL".
+          sdk-hw-target: f7
 
       - name: FAP als Artefakt ablegen
         uses: actions/upload-artifact@v4

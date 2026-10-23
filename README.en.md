@@ -68,7 +68,7 @@ cd flipper-hm-rc8
 again is safe — already applied patches are detected and skipped.
 
 ```bash
-UFBT_HOME=~/.ufbt-unleashed ufbt update \
+UFBT_HOME=~/.ufbt-unleashed ufbt update --hw-target=f7 \
     --url=https://unleashedflip.com/fw/unlshd-086/flipper-z-f7-sdk-unlshd-086.zip
 UFBT_HOME=~/.ufbt-unleashed ufbt            # build
 UFBT_HOME=~/.ufbt-unleashed ufbt launch     # deploy and run
